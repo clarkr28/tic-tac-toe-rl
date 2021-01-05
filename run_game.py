@@ -2,10 +2,13 @@ import argparse
 from game_core import GameCore
 from player_terminal import PlayerTerminal
 from player_rule import PlayerRule
+from player_random import PlayerRandom
+
 
 PLAYER_TERMINAL_KEY = 'terminal'
 PLAYER_RULE_KEY = 'rule'
-VALID_PLAYERS = [PLAYER_TERMINAL_KEY, PLAYER_RULE_KEY]
+PLAYER_RANDOM_KEY = 'random'
+VALID_PLAYERS = [PLAYER_TERMINAL_KEY, PLAYER_RULE_KEY, PLAYER_RANDOM_KEY]
 
 
 
@@ -31,6 +34,8 @@ def create_player(player_type):
         return PlayerTerminal()
     elif player_type == PLAYER_RULE_KEY:
         return PlayerRule()
+    elif player_type == PLAYER_RANDOM_KEY:
+        return PlayerRandom()
     raise ValueError(f'player_type of value "{player_type}" is not supported')
 
 
