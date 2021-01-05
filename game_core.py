@@ -12,34 +12,6 @@ class GameCore:
         self.winning_player = None
         self.player_1_turn = True       # start with player 1 going first
 
-    # exists for basic testing and should be deleted soon
-    def dummy_testing(self):
-        self.board.board[0][0] = CELL_PLAYER_1
-        self.board.board[0][1] = CELL_PLAYER_1
-        self.board.board[0][2] = CELL_PLAYER_1
-        self.board.print()
-        print('winner? ', self.board.winner_check(), '\n')
-        self.board.board[0][2] = CELL_PLAYER_2
-        self.board.board[1][1] = CELL_PLAYER_2
-        self.board.print()
-        print('winner? ', self.board.winner_check(), '\n')
-        self.board.board[2][0] = CELL_PLAYER_2
-        self.board.print()
-        print('winner? ', self.board.winner_check(), '\n')
-        self.board.board[2][0] = CELL_PLAYER_1
-        self.board.print()
-        print('winner? ', self.board.winner_check(), '\n')
-        self.board.board[1][0] = CELL_PLAYER_1
-        self.board.print()
-        print('winner? ', self.board.winner_check(), '\n')
-        print('empty spaces?', self.board.empty_spaces())
-        self.board.board[1][2] = CELL_PLAYER_2
-        self.board.board[2][2] = CELL_PLAYER_2
-        self.board.board[2][1] = CELL_PLAYER_2
-        self.board.print()
-        print('winner? ', self.board.winner_check(), '\n')
-        print('empty spaces?', self.board.empty_spaces())
-
     # run the game
     def run(self):
         current_player = None
@@ -68,6 +40,8 @@ class GameCore:
             # toggle whose turn it is for the next round
             self.player_1_turn = not self.player_1_turn
 
+        # print the board at the end of the game
+        self.board.print()
         if self.winner:
             winning_marker = CELL_PLAYER_1 if self.winning_player == 1 else CELL_PLAYER_2
             print(f'Player {self.winning_player} ({winning_marker}) wins!')
