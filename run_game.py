@@ -42,7 +42,14 @@ def create_player(player_type):
 
 if __name__ == '__main__':
     args = get_args()
-    player_1 = create_player(args.p1)
-    player_2 = create_player(args.p2)
+    player_1 = None
+    player_2 = None
+    if args.p1 == args.p2:
+        # use the same player instance if they are the same type
+        player_1 = create_player(args.p1)
+        player_2 = player_1 
+    else:
+        player_1 = create_player(args.p1)
+        player_2 = create_player(args.p2)
     game = GameCore(player_1, player_2)
     game.run()
