@@ -12,3 +12,10 @@ class PlayerBase(ABC):
     @abstractmethod
     def pick_move(self, board, marker):
         pass
+
+    '''
+    parameters: 
+        board: the game borad (needed because it has the board history)
+    '''
+    def post_move(self, board, marker):
+        pass
