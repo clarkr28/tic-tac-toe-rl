@@ -32,6 +32,9 @@ class GameCore:
                     self.board.set_cell(move[0], move[1], current_marker)
                     break
 
+            # used primarily for the reward processing of the RL player
+            current_player.post_move(self.board, current_marker)
+
             winner_check = self.board.winner_check()
             if winner_check[0]:
                 self.winner = True
@@ -54,6 +57,7 @@ class GameCore:
 class Board:
     def __init__(self):
         self.board = self.make_empty_board()
+        self.history = []
 
     # create a new, empty board
     def make_empty_board(self):
@@ -68,12 +72,45 @@ class Board:
 
     def set_cell(self, row, col, marker):
         self.board[row][col] = marker
+        self.history.append([self.quantify(), [row, col]])
 
     def print(self):
         print('  1 2 3')
         row_headers = ['A', 'B', 'C']
         for row, header in zip(self.board, row_headers):
             print(header + ' ' + ' '.join(row))
+
+    '''
+    return: (int) length of history
+    '''
+    def history_length(self):
+        return len(self.history)
+
+    def get_history_at_index(self, index):
+        return self.history[index]
+
+    '''
+    quantify the state of board - return an integer unique to the state
+    of the board
+    return: int 
+    '''
+    def quantify(self):
+        # convert the board into a 9 digit base 3 number that represents the 
+        # 9 cells of the board the can contain one of three values
+        quantify_string = ''
+        cell = None
+        for row in range(3):
+            for col in range(3):
+                cell = self.board[row][col]
+                if cell == CELL_EMPTY:
+                    quantify_string = '0' + quantify_string
+                elif cell == CELL_PLAYER_1:
+                    quantify_string = '1' + quantify_string 
+                else:
+                    # assume cell == CELL_PLAYER_2
+                    quantify_string = '2' + quantify_string
+        return int(quantify_string, 3)
+
 
     '''
     determine if a player has 3 in a row somewhere on the board
