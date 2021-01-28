@@ -36,6 +36,8 @@ def get_args():
         help='explore parameter for the RL agent')
     parser.add_argument('-p', '--print', action='store_true',
         help='print the board to the terminal at the end of the game')
+    parser.add_argument('-lf', '--logfile', type=str, default='',
+        help='log file to load (to load an existing q function)')
     return parser.parse_args()
 
 
@@ -89,10 +91,21 @@ if __name__ == '__main__':
         player_1 = create_player(args.p1, args)
         player_2 = create_player(args.p2, args)
     
-    # TODO add loading of existing Q function
+    # load logfile if one was passed
+    if args.logfile != '':
+        if not os.path.isfile(args.logfile):
+            raise ValueError(f'file {args.logfile} does not exist')
+        log = {}
+        with open(args.logfile, 'r') as f:
+            log = json.load(f)
+        player_1.load_from_log_obj(log)
+        if args.p1 != args.p2:
+            player_2.load_from_log_obj(log)
     
     game = None
     for i in range(args.rounds):
+        if i % 1000 == 0 and i > 0:
+            print(f'{i} games played ({int(100 * i / args.rounds)} %)')
         game = GameCore(player_1, player_2, args.print)
         game.run()
 
