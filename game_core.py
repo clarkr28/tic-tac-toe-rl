@@ -4,13 +4,14 @@ from constants import CELL_EMPTY, CELL_PLAYER_1, CELL_PLAYER_2
 class GameCore:
 
     # save the players and make an empty board
-    def __init__(self, player_1, player_2):
+    def __init__(self, player_1, player_2, print_result):
         self.player_1 = player_1
         self.player_2 = player_2
         self.board = Board()
         self.winner = False 
         self.winning_player = None
         self.player_1_turn = True       # start with player 1 going first
+        self.print_result = print_result
 
     # run the game
     def run(self):
@@ -44,12 +45,13 @@ class GameCore:
             self.player_1_turn = not self.player_1_turn
 
         # print the board at the end of the game
-        self.board.print()
-        if self.winner:
-            winning_marker = CELL_PLAYER_1 if self.winning_player == 1 else CELL_PLAYER_2
-            print(f'Player {self.winning_player} ({winning_marker}) wins!')
-        else:
-            print('draw')
+        if self.print_result:
+            self.board.print()
+            if self.winner:
+                winning_marker = CELL_PLAYER_1 if self.winning_player == 1 else CELL_PLAYER_2
+                print(f'Player {self.winning_player} ({winning_marker}) wins!')
+            else:
+                print('draw')
 
 
 

@@ -34,6 +34,8 @@ def get_args():
         help='indicate if the RL agent should learn')
     parser.add_argument('-e', '--explore', type=float, default=0.2,
         help='explore parameter for the RL agent')
+    parser.add_argument('-p', '--print', action='store_true',
+        help='print the board to the terminal at the end of the game')
     return parser.parse_args()
 
 
@@ -91,7 +93,7 @@ if __name__ == '__main__':
     
     game = None
     for i in range(args.rounds):
-        game = GameCore(player_1, player_2)
+        game = GameCore(player_1, player_2, args.print)
         game.run()
 
     if args.learn:
