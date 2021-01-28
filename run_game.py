@@ -1,4 +1,7 @@
+import os
 import argparse
+import json
+import datetime
 from game_core import GameCore
 from player_terminal import PlayerTerminal
 from player_rule import PlayerRule
@@ -32,6 +35,24 @@ def get_args():
     parser.add_argument('-e', '--explore', type=float, default=0.2,
         help='explore parameter for the RL agent')
     return parser.parse_args()
+
+
+
+'''
+params: none
+return: string - unique file name to use for logging
+'''
+def generate_file_name():
+    today = datetime.datetime.now()
+    segments = []
+    segments.append(str(today.year))
+    segments.append(str(today.month))
+    segments.append(str(today.day))
+    segments.append(str(today.hour))
+    segments.append(str(today.minute))
+    segments.append(str(today.second))
+    fname = 'logs/' + '_'.join(segments) + '.json'
+    return fname
 
 
 
@@ -73,5 +94,18 @@ if __name__ == '__main__':
         game = GameCore(player_1, player_2)
         game.run()
 
-    # TODO log arguments (pickle)
-    # TODO add saving of Q function
+    if args.learn:
+        log_obj = {}
+        log_obj['p1_type'] = args.p1
+        log_obj['p2_type'] = args.p2
+        log_obj['rounds'] = args.rounds
+        log_obj['explore'] = args.explore
+        if args.p1 == args.p2:
+            player_1.save_to_log_obj(log_obj)
+        else:
+            player_1.save_to_log_obj(log_obj)
+            player_2.save_to_log_obj(log_obj)
+        fname = generate_file_name()
+        with open(fname, 'w') as f:
+            json.dump(log_obj, f)
+

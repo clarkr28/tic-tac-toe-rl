@@ -1,10 +1,54 @@
 import copy
 import random
+import pickle
 from game_core import Board
 from player_base import PlayerBase
 from constants import CELL_EMPTY, WIN_OPTIONS, CELL_PLAYER_1, CELL_PLAYER_2
 
 Q_LOG_KEY = 'qfunction'
+
+
+
+'''
+param:
+    board (Board) the board to calculate a reward for
+    marker (string) your marker on the board
+return: (float) reward for the passed board
+'''
+def reward(board, marker):
+    # constants used in this function
+    win_reward = 20.0
+    lose_reward = -20.0
+    # determine what the marker of the opponent is
+    opp_marker = CELL_PLAYER_2 if marker == CELL_PLAYER_1 else CELL_PLAYER_1
+    reward = 0
+    my_count = 0
+    opp_count = 0
+    for inds_1, inds_2, inds_3 in WIN_OPTIONS:
+        my_count = 0
+        opp_count = 0
+        cell_values = list()
+        cell_values.append(board.get_cell(*inds_1))
+        cell_values.append(board.get_cell(*inds_2))
+        cell_values.append(board.get_cell(*inds_3))
+        for value in cell_values:
+            if value == CELL_EMPTY:
+                continue
+            elif value == marker:
+                my_count += 1
+            elif value == opp_marker:
+                opp_count += 1
+        if opp_count == 0:
+            reward += my_count**2
+        if opp_count == 3:
+            # the opponent has won
+            return lose_reward
+        if my_count == 3:
+            # you have won
+            return win_reward
+    return reward
+
+
 
 class PlayerRL(PlayerBase):
     '''
@@ -18,6 +62,14 @@ class PlayerRL(PlayerBase):
         self.q = dict()
         self.lr = 0.1       # learning rate
         self.gamma = 0.9    # discount factor
+
+
+    def save_to_log_obj(self, log_obj):
+        log_obj[Q_LOG_KEY] = self.q
+
+
+    def load_from_log_obj(self, log_obj):
+        self.q = log_obj[Q_LOG_KEY]
 
 
     '''
@@ -54,8 +106,19 @@ class PlayerRL(PlayerBase):
                 # undo the move on the board for the next iteration
                 temp_board.set_cell(row, col, CELL_EMPTY)
             # pick the move with the highest expected reward
+            best_move = [remaining_moves[0]]
+            best_move_index = 0
+            for i in range(1,len(remaining_moves)):
+                if expected_rewards[i] == expected_rewards[best_move_index]:
+                    best_move.append(remaining_moves[i])
+                elif expected_rewards[i] > expected_rewards[best_move_index]:
+                    best_move = [remaining_moves[i]]
+                    best_move_index = i
             # if multiple with the same highest reward, pick one randomly
-            # TODO do the things in the comments above 
+            if len(best_move) == 1:
+                move = best_move[0]
+            else:
+                move = best_move[random.randint(0, len(best_move) - 1)]
         return move
 
 
@@ -63,55 +126,18 @@ class PlayerRL(PlayerBase):
     update q values
     '''
     def post_move(self, board, marker):
-        reward = reward(board, marker)
+        r = reward(board, marker)
         move_count = board.history_length()
         if move_count < 2:
             return
         previous_state = board.get_history_at_index(move_count - 2)
         quantified_state = previous_state[0]
-        self.q[quantified_state] = self.q[quantified_state] + self.lr * (reward + 
+        if quantified_state not in self.q:
+            self.q[quantified_state] = 0
+        if board.quantify() not in self.q:
+            self.q[board.quantify()] = 0
+        self.q[quantified_state] = self.q[quantified_state] + self.lr * (r + 
             self.gamma * self.q[board.quantify()] - self.q[quantified_state])
-
-
-
-'''
-param:
-    board (Board) the board to calculate a reward for
-    marker (string) your marker on the board
-return: (float) reward for the passed board
-'''
-def reward(borad, marker):
-    # constants used in this function
-    win_reward = 20.0
-    lose_reward = -20.0
-    # determine what the marker of the opponent is
-    opp_marker = CELL_PLAYER_2 if marker == CELL_PLAYER_1 else CELL_PLAYER_1
-    reward = 0
-    my_count = 0
-    opp_count = 0
-    for inds_1, inds_2, inds_3 in WIN_OPTIONS:
-        my_count = 0
-        opp_count = 0
-        cell_values = list()
-        cell_values.append(board.get_cell(*inds_1))
-        cell_values.append(board.get_cell(*inds_2))
-        cell_values.append(board.get_cell(*inds_3))
-        for value in cell_values:
-            if value == CELL_EMPTY:
-                continue
-            elif value == marker:
-                my_count += 1
-            elif value == opp_marker:
-                opp_count += 1
-        if opp_count == 0:
-            reward += my_count**2
-        if opp_count == 3:
-            # the opponent has won
-            return lose_reward
-        if my_count == 3:
-            # you have won
-            return win_reward
-    return reward
 
 
 
