@@ -17,8 +17,8 @@ return: (float) reward for the passed board
 '''
 def reward(board, marker):
     # constants used in this function
-    win_reward = 20.0
-    lose_reward = -20.0
+    win_reward = 100.0
+    lose_reward = -100.0
     # determine what the marker of the opponent is
     opp_marker = CELL_PLAYER_2 if marker == CELL_PLAYER_1 else CELL_PLAYER_1
     reward = 0
@@ -38,14 +38,13 @@ def reward(board, marker):
                 my_count += 1
             elif value == opp_marker:
                 opp_count += 1
-        if opp_count == 0:
-            reward += my_count**2
         if opp_count == 3:
             # the opponent has won
             return lose_reward
         if my_count == 3:
             # you have won
             return win_reward
+        reward += my_count**2
     return reward
 
 
@@ -61,7 +60,7 @@ class PlayerRL(PlayerBase):
         self.explore = explore
         self.q = dict()
         self.lr = 0.1       # learning rate
-        self.gamma = 0.9    # discount factor
+        self.gamma = 0.8    # discount factor
 
 
     def save_to_log_obj(self, log_obj):
