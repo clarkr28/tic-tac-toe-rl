@@ -1,4 +1,6 @@
-from constants import CELL_EMPTY, CELL_PLAYER_1, CELL_PLAYER_2
+import numpy as np
+from constants import CELL_EMPTY, CELL_PLAYER_1, CELL_PLAYER_2, WIN_OPTIONS_NP
+
 
 # Class to store game state and manage the flow of the game
 class GameCore:
@@ -63,24 +65,29 @@ class Board:
 
     # create a new, empty board
     def make_empty_board(self):
-        board = list()
-        board.append([CELL_EMPTY, CELL_EMPTY, CELL_EMPTY])
-        board.append([CELL_EMPTY, CELL_EMPTY, CELL_EMPTY])
-        board.append([CELL_EMPTY, CELL_EMPTY, CELL_EMPTY])
-        return board
+        return np.zeros((3,3), dtype=int)
 
     def get_cell(self, row, col):
-        return self.board[row][col]
+        return self.board[row,col]
 
     def set_cell(self, row, col, marker):
-        self.board[row][col] = marker
+        self.board[row,col] = marker
         self.history.append([self.quantify(), [row, col]])
 
     def print(self):
         print('  1 2 3')
         row_headers = ['A', 'B', 'C']
-        for row, header in zip(self.board, row_headers):
-            print(header + ' ' + ' '.join(row))
+        for row, header in enumerate(row_headers):
+            print(header + ' ', end='')
+            for col in range(3):
+                if self.board[row,col] == 0:
+                    print(CELL_EMPTY, end='')
+                elif self.board[row,col] == 1:
+                    print(CELL_PLAYER_1, end='')
+                else:
+                    print(CELL_PLAYER_2, end='')
+            print()
+
 
     '''
     return: (int) length of history
@@ -98,20 +105,14 @@ class Board:
     '''
     def quantify(self):
         # convert the board into a 9 digit base 3 number that represents the 
-        # 9 cells of the board the can contain one of three values
-        quantify_string = ''
-        cell = None
-        for row in range(3):
-            for col in range(3):
-                cell = self.board[row][col]
-                if cell == CELL_EMPTY:
-                    quantify_string = '0' + quantify_string
-                elif cell == CELL_PLAYER_1:
-                    quantify_string = '1' + quantify_string 
-                else:
-                    # assume cell == CELL_PLAYER_2
-                    quantify_string = '2' + quantify_string
-        return int(quantify_string, 3)
+        # 9 cells of the board 
+        flat_board = self.board.reshape(9)
+        multiplier = 1
+        total = 0
+        for i in range(9):
+            total += flat_board[i] * multiplier
+            multiplier *= 3
+        return total
 
 
     '''
@@ -121,38 +122,11 @@ class Board:
             only exists if there is a winner
     '''
     def winner_check(self):
-        # check top row
-        if (self.board[0][0] == self.board[0][1] == self.board[0][2] and self.board[0][0] != CELL_EMPTY):
-            winner = 1 if self.board[0][0] == CELL_PLAYER_1 else 2
-            return (True, winner)
-        # check middle row
-        if (self.board[1][0] == self.board[1][1] == self.board[1][2] and self.board[1][0] != CELL_EMPTY):
-            winner = 1 if self.board[1][0] == CELL_PLAYER_1 else 2
-            return (True, winner)
-        # check bottom row
-        if (self.board[2][0] == self.board[2][1] == self.board[2][2] and self.board[2][0] != CELL_EMPTY):
-            winner = 1 if self.board[2][0] == CELL_PLAYER_1 else 2
-            return (True, winner)
-        # check left column
-        if (self.board[0][0] == self.board[1][0] == self.board[2][0] and self.board[0][0] != CELL_EMPTY):
-            winner = 1 if self.board[0][0] == CELL_PLAYER_1 else 2
-            return (True, winner)
-        # check middle column
-        if (self.board[0][1] == self.board[1][1] == self.board[2][1] and self.board[0][1] != CELL_EMPTY):
-            winner = 1 if self.board[0][1] == CELL_PLAYER_1 else 2
-            return (True, winner)
-        # check right column
-        if (self.board[0][2] == self.board[1][2] == self.board[2][2] and self.board[0][2] != CELL_EMPTY):
-            winner = 1 if self.board[0][2] == CELL_PLAYER_1 else 2
-            return (True, winner)
-        # check top-left to bottom-right diag
-        if (self.board[0][0] == self.board[1][1] == self.board[2][2] and self.board[0][0] != CELL_EMPTY):
-            winner = 1 if self.board[0][0] == CELL_PLAYER_1 else 2
-            return (True, winner)
-        # check bottom-left to top-right diag
-        if (self.board[2][0] == self.board[1][1] == self.board[0][2] and self.board[0][2] != CELL_EMPTY):
-            winner = 1 if self.board[0][2] == CELL_PLAYER_1 else 2
-            return (True, winner)
+        for inds in WIN_OPTIONS_NP:
+            if np.all(self.board[inds[0],inds[1]] == 1):
+                return (True, 1)    # player 1 won
+            elif np.all(self.board[inds[0],inds[1]] == 2):
+                return (True, 2)    # player 2 won
         # nobody won
         return (False,)
             
@@ -161,8 +135,4 @@ class Board:
     return: boolean - true if there are still unoccupied spaces
     '''
     def empty_spaces(self):
-        for row in self.board:
-            for elem in row:
-                if elem == CELL_EMPTY:
-                    return True
-        return False
+        return np.any(self.board == 0)
