@@ -2,9 +2,13 @@ import numpy as np
 
 
 # CONSTANTS
-CELL_EMPTY = ' '
-CELL_PLAYER_1 = 'X'
-CELL_PLAYER_2 = 'O'
+CELL_EMPTY = 0
+CELL_PLAYER_1 = 1
+CELL_PLAYER_2 = 2
+
+CELL_EMPTY_PRINT = ' '
+CELL_PLAYER_1_PRINT = 'X'
+CELL_PLAYER_2_PRINT = 'O'
 
 WIN_OPTIONS = [
     [[0,0], [0,1], [0,2]],  # top row

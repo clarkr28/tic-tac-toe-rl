@@ -1,5 +1,5 @@
 from player_base import PlayerBase
-
+from constants import CELL_PLAYER_1, CELL_PLAYER_1_PRINT, CELL_PLAYER_2_PRINT
 
 class PlayerTerminal(PlayerBase):
 
@@ -13,9 +13,10 @@ class PlayerTerminal(PlayerBase):
     '''
     def pick_move(self, board, marker):
         board.print()
+        print_marker = CELL_PLAYER_1_PRINT if marker == CELL_PLAYER_1 else CELL_PLAYER_2_PRINT
         valid = False
         while not valid:
-            move = input(f'You are {marker}, pick your move: ')
+            move = input(f'You are {print_marker}, pick your move: ')
             if len(move) == 2:
                 if move[0] in 'abcABC' and move[1] in '123':
                     valid = True
