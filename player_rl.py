@@ -60,9 +60,9 @@ class PlayerRL(PlayerBase):
     def __init__(self, learn, explore):
         self.learn = learn
         self.explore = explore
-        self.q = np.zeros((3**9,9))
-        self.lr = 0.1       # learning rate
-        self.gamma = 0.8    # discount factor
+        self.q = np.zeros(3**9)
+        self.lr = 0.01       # learning rate
+        self.gamma = 0.9    # discount factor
 
 
     def save_to_log_obj(self, log_obj, fname):
@@ -84,7 +84,6 @@ class PlayerRL(PlayerBase):
     if exploit mode - pick the move that should return the highest reward
     if explore mode - pick a random move
     '''
-    # TODO: update to use a numpy based q function
     def pick_move(self, board, marker):
         move = None # the move to return
         # get all remaining moves
@@ -108,10 +107,7 @@ class PlayerRL(PlayerBase):
                 row, col = remaining_moves[i]
                 temp_board.set_cell(row, col, marker)
                 quantified_state = temp_board.quantify(marker)
-                if quantified_state in self.q:
-                    expected_rewards.append(self.q[quantified_state])
-                else:
-                    expected_rewards.append(0)
+                expected_rewards.append(self.q[quantified_state])
                 # undo the move on the board for the next iteration
                 temp_board.set_cell(row, col, CELL_EMPTY)
             # pick the move with the highest expected reward
@@ -142,12 +138,8 @@ class PlayerRL(PlayerBase):
             return
         previous_state = board.get_history_at_index(move_count - 2)
         quantified_state = previous_state[0]
-        if quantified_state not in self.q:
-            self.q[quantified_state] = 0
-        if board.quantify() not in self.q:
-            self.q[board.quantify()] = 0
         self.q[quantified_state] = self.q[quantified_state] + self.lr * (r + 
-            self.gamma * self.q[board.quantify()] - self.q[quantified_state])
+            self.gamma * self.q[board.quantify(marker)] - self.q[quantified_state])
 
 
 
