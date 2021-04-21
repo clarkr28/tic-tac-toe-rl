@@ -1,6 +1,5 @@
 import numpy as np
-from constants import CELL_EMPTY, CELL_PLAYER_1, CELL_PLAYER_2, WIN_OPTIONS_NP
-
+from constants import CELL_EMPTY, CELL_PLAYER_1, CELL_PLAYER_2, WIN_OPTIONS_NP, CELL_EMPTY_PRINT, CELL_PLAYER_1_PRINT, CELL_PLAYER_2_PRINT 
 
 # Class to store game state and manage the flow of the game
 class GameCore:
@@ -72,7 +71,7 @@ class Board:
 
     def set_cell(self, row, col, marker):
         self.board[row,col] = marker
-        self.history.append([self.quantify(), [row, col]])
+        self.history.append([self.quantify(marker), [row, col]])
 
     def print(self):
         print('  1 2 3')
@@ -81,11 +80,11 @@ class Board:
             print(header + ' ', end='')
             for col in range(3):
                 if self.board[row,col] == 0:
-                    print(CELL_EMPTY, end='')
+                    print(CELL_EMPTY_PRINT + ' ', end='')
                 elif self.board[row,col] == 1:
-                    print(CELL_PLAYER_1, end='')
+                    print(CELL_PLAYER_1_PRINT + ' ', end='')
                 else:
-                    print(CELL_PLAYER_2, end='')
+                    print(CELL_PLAYER_2_PRINT + ' ', end='')
             print()
 
 
