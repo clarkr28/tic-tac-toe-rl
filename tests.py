@@ -39,20 +39,20 @@ class TestQuantify(unittest.TestCase):
 
     def test_1(self):
         board = Board()
-        self.assertEqual(board.quantify(), 0)
+        self.assertEqual(board.quantify(1), 0)
         board.set_cell(0, 0, 2)
-        self.assertEqual(board.quantify(), 2)
+        self.assertEqual(board.quantify(1), 2)
         board.set_cell(0, 0, 1)
-        self.assertEqual(board.quantify(), 1)
+        self.assertEqual(board.quantify(1), 1)
         board.set_cell(0, 1, 2)
-        self.assertEqual(board.quantify(), 1 + 6)
+        self.assertEqual(board.quantify(1), 1 + 6)
         board.set_cell(0, 2, 1)
-        self.assertEqual(board.quantify(), 1 + 6 + 9)
+        self.assertEqual(board.quantify(1), 1 + 6 + 9)
 
     def test_2(self):
         board = Board()
         board.set_cell(2, 2, 1)
-        self.assertEqual(board.quantify(), 3**8)
+        self.assertEqual(board.quantify(1), 3**8)
 
 
 class TestWinnerChecking(unittest.TestCase):
