@@ -1,11 +1,13 @@
 import copy
 import random
-import pickle
+import numpy as np
 from game_core import Board
 from player_base import PlayerBase
 from constants import CELL_EMPTY, WIN_OPTIONS, CELL_PLAYER_1, CELL_PLAYER_2
 
-Q_LOG_KEY = 'qfunction'
+Q_FNAME_KEY = 'q_fname'
+LEARNING_RATE_KEY = 'learning_rate'
+GAMMA_KEY = 'gamma_key'
 
 
 
@@ -58,23 +60,31 @@ class PlayerRL(PlayerBase):
     def __init__(self, learn, explore):
         self.learn = learn
         self.explore = explore
-        self.q = dict()
+        self.q = np.zeros((3**9,9))
         self.lr = 0.1       # learning rate
         self.gamma = 0.8    # discount factor
 
 
-    def save_to_log_obj(self, log_obj):
-        log_obj[Q_LOG_KEY] = self.q
+    def save_to_log_obj(self, log_obj, fname):
+        log_obj[LEARNING_RATE_KEY] = self.lr
+        log_obj[GAMMA_KEY] = self.gamma
+        # remove .json from fname and add .npz
+        npz_file = fname.split('.')[0] + '.npz'
+        log_obj[Q_FNAME_KEY] = npz_file
+        np.savez(npz_file, q=self.q)
 
 
     def load_from_log_obj(self, log_obj):
-        self.q = log_obj[Q_LOG_KEY]
+        npz_fname = log_obj[Q_FNAME_KEY]
+        with np.load(npz_fname) as npz_file:
+            self.q = npz_file['q']
 
 
     '''
     if exploit mode - pick the move that should return the highest reward
     if explore mode - pick a random move
     '''
+    # TODO: update to use a numpy based q function
     def pick_move(self, board, marker):
         move = None # the move to return
         # get all remaining moves
@@ -97,7 +107,7 @@ class PlayerRL(PlayerBase):
                 # see what the expected reward would be for each move
                 row, col = remaining_moves[i]
                 temp_board.set_cell(row, col, marker)
-                quantified_state = temp_board.quantify()
+                quantified_state = temp_board.quantify(marker)
                 if quantified_state in self.q:
                     expected_rewards.append(self.q[quantified_state])
                 else:
@@ -124,6 +134,7 @@ class PlayerRL(PlayerBase):
     '''
     update q values
     '''
+    # TODO: update to use a numpy based q function and new quantify function
     def post_move(self, board, marker):
         r = reward(board, marker)
         move_count = board.history_length()
