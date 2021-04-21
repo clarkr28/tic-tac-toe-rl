@@ -24,7 +24,7 @@ class PlayerBase(ABC):
     parameters:
         log_obj: dictionary to add log objects to
     '''
-    def save_to_log_obj(self, log_obj):
+    def save_to_log_obj(self, log_obj, fname):
         pass
 
     ''' 
