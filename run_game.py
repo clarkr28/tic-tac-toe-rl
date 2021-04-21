@@ -115,12 +115,12 @@ if __name__ == '__main__':
         log_obj['p2_type'] = args.p2
         log_obj['rounds'] = args.rounds
         log_obj['explore'] = args.explore
-        if args.p1 == args.p2:
-            player_1.save_to_log_obj(log_obj)
-        else:
-            player_1.save_to_log_obj(log_obj)
-            player_2.save_to_log_obj(log_obj)
         fname = generate_file_name()
+        if args.p1 == args.p2:
+            player_1.save_to_log_obj(log_obj, fname)
+        else:
+            player_1.save_to_log_obj(log_obj, fname)
+            player_2.save_to_log_obj(log_obj, fname)
         with open(fname, 'w') as f:
             json.dump(log_obj, f)
 
