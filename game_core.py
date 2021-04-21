@@ -25,7 +25,7 @@ class GameCore:
         while not self.winner and self.board.empty_spaces():
             # get the current player and current marker for this turn
             current_player = self.player_1 if self.player_1_turn else self.player_2
-            current_marker = CELL_PLAYER_1 if self.player_1_turn else CELL_PLAYER_2
+            current_marker = 1 if self.player_1_turn else 2
 
             # get the next move from the player and keep asking until they pick a spot that
             # has not yet been taken
@@ -100,17 +100,25 @@ class Board:
 
     '''
     quantify the state of board - return an integer unique to the state
-    of the board
+    of the board and which marker is for the current player
+    param: curr_marker (int) the marker in the board for the current player
     return: int 
     '''
-    def quantify(self):
+    def quantify(self, curr_marker):
         # convert the board into a 9 digit base 3 number that represents the 
         # 9 cells of the board 
         flat_board = self.board.reshape(9)
         multiplier = 1
+        cell_value = None
         total = 0
         for i in range(9):
-            total += flat_board[i] * multiplier
+            if flat_board[i] == 0:
+                cell_value = 0
+            elif flat_board[i] == curr_marker:
+                cell_value = 1
+            else:
+                cell_value = 2
+            total += cell_value * multiplier
             multiplier *= 3
         return total
 
